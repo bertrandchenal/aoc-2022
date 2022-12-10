@@ -2,6 +2,7 @@ const std = @import("std");
 const print = std.debug.print;
 const indexOf = std.mem.indexOf;
 const split = std.mem.split;
+const assert = std.debug.assert;
 
 // const input =
 //     \\vJrwpWtwJgWrhcsFMMfFFhFp
@@ -15,21 +16,45 @@ const input = @embedFile("day-03.txt");
 
 pub fn main() !void {
     var lines = split(u8, input, "\n");
-    var sum: usize = 0;
+    var sum_part_one: usize = 0;
+    var sum_part_two: usize = 0;
+    var window: [3][]const u8 = undefined;
+    var pos: u32 = 0;
+
     while (lines.next()) |line| {
+        // Handle part 1
         const left = line[0 .. line.len / 2];
         const right = line[line.len / 2 ..];
         if (left.len != right.len) {
             unreachable;
         }
-        var inter_it = intersection(u8, left, right);
+        var inter_it = intersect(u8, left, right);
         while (inter_it.next()) |item| {
-            print("FOUND {c}\n", .{item});
-            sum += priority(item);
+            sum_part_one += priority(item);
             break;
         }
+        // Handle part 2
+        print("{d} {d}\n", .{ pos, pos % 3 });
+        window[pos % 3] = line;
+        if (pos % 3 == 2) {
+            // print("ITER {s}\n", .{window});
+            var inter_first = intersect(u8, window[0], window[1]);
+            while (inter_first.next()) |item| {
+                var item_arr = [_]u8{item};
+                var inter_second = intersect(u8, &item_arr, window[2]);
+                var common_char = inter_second.next() orelse continue;
+                sum_part_two += priority(common_char);
+                print("FOUND {c} -> {}\n", .{ common_char, sum_part_two });
+                break;
+            }
+        }
+        pos += 1;
     }
-    print("SUM {d}\n", .{sum});
+    print("SUM PART ONE {d}\n", .{sum_part_one});
+    print("SUM PART TWO {d}\n", .{sum_part_two});
+
+    // Second part
+
 }
 
 pub fn priority(c: usize) usize {
@@ -43,28 +68,33 @@ pub fn priority(c: usize) usize {
     return c - 38;
 }
 
-pub fn intersection(comptime T: type, left: []const T, right: []const T) IntersectionIterator(T) {
-    print("left {s} right {s}\n", .{ left, right });
+pub fn intersect(comptime T: type, left: []const T, right: []const T) IntersectIterator(T) {
     return .{
-        .index = 0,
         .left = left,
         .right = right,
     };
 }
 
-pub fn IntersectionIterator(comptime T: type) type {
+pub fn IntersectIterator(comptime T: type) type {
     return struct {
         left: []const T,
         right: []const T,
-        index: usize,
+        index: usize = 0,
 
         const Self = @This();
 
         pub fn next(self: *Self) ?T {
-            defer self.index += 1;
-            var larr = self.left[self.index .. self.index + 1]; INCORECT MUST RETURN NULL IF INDEX >= ARRAY LEN
-            var pos = indexOf(T, self.right, larr) orelse return null; INCORECT MUST FORWARD TO NEXT INDEX
-            return self.right[pos];
+            while (self.index < self.left.len) {
+                var larr = self.left[self.index .. self.index + 1];
+                var pos = indexOf(T, self.right, larr) orelse {
+                    self.index += 1;
+                    continue;
+                };
+                self.index += 1;
+                return self.right[pos];
+            }
+            self.index += 1;
+            return null;
         }
     };
 }
@@ -84,4 +114,14 @@ test "test char" {
     const Z = 'Z';
     print("{} {}\n", .{ z, Z });
     print("{} {}\n", .{ priority(z), priority(Z) });
+}
+
+test "test intersect" {
+    var inter_it = intersect(u8, "ham", "spam");
+    var item = inter_it.next() orelse '?';
+    assert('a' == item);
+    item = inter_it.next() orelse '?';
+    assert('m' == item);
+    item = inter_it.next() orelse '?';
+    assert('?' == item);
 }
