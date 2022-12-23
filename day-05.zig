@@ -1,10 +1,12 @@
 const std = @import("std");
-const print = std.debug.print;
 const HashList = @import("hashlist.zig").HashList;
-const split = std.mem.split;
 const isUpper = std.ascii.isUpper;
+const print = std.debug.print;
+const split = std.mem.split;
+const parseInt = std.fmt.parseInt;
 
 const init_input = @embedFile("day-05-init.txt");
+const moves_input = @embedFile("day-05.txt");
 
 pub fn main() !void {
     // INIT
@@ -22,8 +24,35 @@ pub fn main() !void {
             }
         }
     }
-    hl.printme();
+
+    // MOVES
+    lines = split(u8, moves_input, "\n");
+    while (lines.next()) |line| {
+        if (line.len == 0) continue;
+        const items = try splitMove(line);
+        print("ITEMS {d}\n", .{items});
+    }
+
+    // TEARDOWN
+    // hl.printme();
     hl.deinit();
+}
+
+fn splitMove(line: []const u8) ![]u32 {
+    var parts = split(u8, line, " ");
+    var res: [3]u32 = undefined;
+    var pos: usize = 0;
+    while (parts.next()) |part| {
+        // ex: move 5 from 6 to 9
+        if (pos == 1 or pos == 3 or pos == 5) {
+            var v = try parseInt(u32, part, 10);
+            var new_pos = @divTrunc(pos, 2);
+            res[new_pos] = v;
+            print("PARSE {s}, {d}\n", .{ part, new_pos });
+        }
+        pos += 1;
+    }
+    return &res;
 }
 
 test "hm" {
