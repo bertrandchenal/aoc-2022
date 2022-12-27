@@ -36,11 +36,13 @@ pub fn HashList(comptime K: type, comptime V: type) type {
         pub fn printme(self: *Self) void {
             var h_iterator = self.hm.iterator();
             while (h_iterator.next()) |item| {
-                print("{}\n", .{item.key_ptr.*});
+                print("{} ->", .{item.key_ptr.*});
                 for (item.value_ptr.*.items) |val| {
-                    print("  {c}\n", .{val});
+                    print("  {c}", .{val});
                 }
+                print("\n", .{});
             }
+            print("\n", .{});
         }
 
         pub fn get(self: *Self, k: K) !*ArrayList(V) {
@@ -66,8 +68,11 @@ test "create" {
     var l: *ArrayList(u32) = undefined;
     while (i < 2) : (i += 1) {
         l = try hl.get(i);
-        try l.append(i);
-        try l.insert(0, i + 10);
+        var j: u32 = 0;
+        while (j < 20) : (j += 1) {
+            try l.append(i);
+            try l.insert(0, i + 10);
+        }
     }
     print("PRINTME\n", .{});
     hl.printme();

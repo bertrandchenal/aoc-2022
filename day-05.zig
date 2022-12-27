@@ -8,6 +8,19 @@ const parseInt = std.fmt.parseInt;
 const init_input = @embedFile("day-05-init.txt");
 const moves_input = @embedFile("day-05.txt");
 
+// const init_input =
+//     \\    [D]
+//     \\[N] [C]
+//     \\[Z] [M] [P]
+//     \\ 1   2   3
+// ;
+// const moves_input =
+//     \\move 1 from 2 to 1
+//     \\move 3 from 1 to 3
+//     \\move 2 from 2 to 1
+//     \\move 1 from 1 to 2
+// ;
+
 pub fn main() !void {
     // INIT
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -24,23 +37,32 @@ pub fn main() !void {
             }
         }
     }
+    hl.printme();
 
     // MOVES
     lines = split(u8, moves_input, "\n");
     while (lines.next()) |line| {
         if (line.len == 0) continue;
-        const items = try splitMove(line);
-        print("ITEMS {d}\n", .{items});
+        print("\n", .{});
+        var items = try splitMove(line);
+        var cnt = items[0];
+        var orig = try hl.get(items[1]);
+        var dest = try hl.get(items[2]);
+        var i: u32 = 0;
+        while (i < cnt) : (i += 1) {
+            var el = orig.pop();
+            try dest.append(el);
+        }
+        hl.printme();
     }
 
     // TEARDOWN
-    // hl.printme();
     hl.deinit();
 }
 
-fn splitMove(line: []const u8) ![]u32 {
+fn splitMove(line: []const u8) ![3]u32 {
     var parts = split(u8, line, " ");
-    var res: [3]u32 = undefined;
+    var res: [3]u32 = [_]u32{ 0, 0, 0 };
     var pos: usize = 0;
     while (parts.next()) |part| {
         // ex: move 5 from 6 to 9
@@ -48,20 +70,18 @@ fn splitMove(line: []const u8) ![]u32 {
             var v = try parseInt(u32, part, 10);
             var new_pos = @divTrunc(pos, 2);
             res[new_pos] = v;
-            print("PARSE {s}, {d}\n", .{ part, new_pos });
         }
         pos += 1;
     }
-    return &res;
+    print("PARSE {d}\n", .{res});
+    return res;
 }
 
 test "hm" {
     var allocator = std.testing.allocator;
-
     var hl = HashList(u32, u32).init(allocator);
-
     var i: u32 = 0;
-    // var l: *ArrayList(u32) = undefined;
+
     while (i < 2) : (i += 1) {
         var l = try hl.get(i);
         try l.append(i);
