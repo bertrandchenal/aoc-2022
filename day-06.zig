@@ -6,10 +6,11 @@ const allEqual = std.mem.allEqual;
 
 const input = @embedFile("day-06.txt");
 //const input = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"; // test part1
-//const input = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"; //test part2
+//const input = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"; //test part2
 
 pub fn main() !void {
-    try run();
+    try run(4);
+    try run(14);
 }
 
 pub fn allDiff(arr: []u8) bool {
@@ -25,13 +26,13 @@ pub fn allDiff(arr: []u8) bool {
     return true;
 }
 
-pub fn run() !void {
-    var buf: [4]u8 = undefined;
+pub fn run(comptime buf_len: usize) !void {
+    var buf: [buf_len]u8 = undefined;
     var pos: usize = 0;
     while (pos < input.len) : (pos += 1) {
-        buf[pos % 4] = input[pos];
-        print("{c}\n", .{input[pos]});
-        if (pos >= 4 and allDiff(buf[0..])) {
+        buf[pos % buf_len] = input[pos];
+        //print("{c}\n", .{input[pos]});
+        if (pos >= buf_len and allDiff(buf[0..])) {
             print("FOUND! {d}\n", .{pos + 1});
             break;
         }
