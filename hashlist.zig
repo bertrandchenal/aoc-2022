@@ -59,33 +59,33 @@ pub fn HashList(comptime K: type, comptime V: type) type {
     };
 }
 
-test "create" {
-    var allocator = std.testing.allocator;
+// test "create" {
+//     var allocator = std.testing.allocator;
 
-    var hl = HashList(u32, u32).init(allocator);
+//     var hl = HashList(u32, u32).init(allocator);
 
-    var i: u32 = 0;
-    var l: *ArrayList(u32) = undefined;
-    while (i < 2) : (i += 1) {
-        l = try hl.get(i);
-        var j: u32 = 0;
-        while (j < 20) : (j += 1) {
-            try l.append(i);
-            try l.insert(0, i + 10);
-        }
-    }
-    print("PRINTME\n", .{});
-    hl.printme();
+//     var i: u32 = 0;
+//     var l: *ArrayList(u32) = undefined;
+//     while (i < 2) : (i += 1) {
+//         l = try hl.get(i);
+//         var j: u32 = 0;
+//         while (j < 20) : (j += 1) {
+//             try l.append(i);
+//             try l.insert(0, i + 10);
+//         }
+//     }
+//     print("PRINTME\n", .{});
+//     hl.printme();
 
-    i = 0;
-    while (i < 2) : (i += 1) {
-        l = try hl.get(i);
-        _ = l.pop();
-    }
+//     i = 0;
+//     while (i < 2) : (i += 1) {
+//         l = try hl.get(i);
+//         _ = l.pop();
+//     }
 
-    print("PRINTME\n", .{});
-    hl.printme();
+//     print("PRINTME\n", .{});
+//     hl.printme();
 
-    print("END TEST\n", .{});
-    hl.deinit();
-}
+//     print("END TEST\n", .{});
+//     hl.deinit();
+// }
